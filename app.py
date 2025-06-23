@@ -8,7 +8,7 @@ app = Flask(__name__)
 def index():
     """Example index page."""
     octopuses = '🐙' * 10
-    return f'<h1>Inky Is Best</h1><p>{octopuses}</p>'
+    return f'<h1>Linky Is Best</h1><p>{octopuses}</p>'
 
 
 if __name__ == "__main__":
