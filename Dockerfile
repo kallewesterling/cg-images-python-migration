@@ -7,6 +7,7 @@ WORKDIR /flask-app
 RUN python -m venv venv
 ENV PATH="/flask-app/venv/bin":$PATH
 COPY requirements.txt requirements.txt
+ARG PIP_INDEX_URL=https://pypi.org/simple/
 RUN pip install -r requirements.txt
 
 FROM cgr.dev/chainguard/python:latest
