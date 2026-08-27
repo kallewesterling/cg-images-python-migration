@@ -1,6 +1,8 @@
-# Migrating a Flask Application to Chainguard Images
+# Migrating a Flask Application to Chainguard
 
-Sample application showing a migration to Chainguard Images for a Flask application. We start with a simple containerized Flask application based on a default Python image, migrate it to Chainguard Images, then add a Docker Compose file orchestrating the application with a reverse proxy using Chainguard's nginx image.
+This repository shows a migration to Chainguard Containers + Libraries in stages.
+
+We start with a simple containerized Flask application based on a default Python image, migrate it to Chainguard Containers, then switch to pull additional dependencies from Chainguard Libraries.
 
 To clone and fetch/pull all branches:
 
