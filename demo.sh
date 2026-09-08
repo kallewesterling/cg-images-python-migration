@@ -54,10 +54,12 @@ banner "Stage 1: plain Python base image"
 # ---------------------------------------------------------------------------
 say "Start simple: build straight off the public 'python' image, straight from Docker Hub:"
 pe "cat docker/Dockerfile.v0"
+say "Nothing unusual here -- pip install, copy the app in, run gunicorn. Building it:"
 pe "docker build -f docker/Dockerfile.v0 -t pymigrate:v0 app"
 pei "docker rm -f pymigrate >/dev/null 2>&1"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:v0"
 pei "wait_for_http http://localhost:8000"
+say "And it's up. This is the baseline every later stage gets compared against:"
 pe "curl -s http://localhost:8000/"
 echo
 
@@ -66,10 +68,12 @@ banner "Migrate to Chainguard Containers"
 # ---------------------------------------------------------------------------
 say "Same app, same requirements.txt -- only the base image and build shape change:"
 pe "git --no-pager diff --no-index --color=always docker/Dockerfile.v0 docker/Dockerfile.containers"
+say "A multi-stage build now: dependencies get installed in a -dev image, then only the venv\ncarries over into the minimal runtime image. Rebuilding:"
 pe "docker build -f docker/Dockerfile.containers -t pymigrate:containers app"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:containers"
 pei "wait_for_http http://localhost:8000"
+say "Swap the container out from under it -- same URL, same request:"
 pe "curl -s http://localhost:8000/"
 echo
 say "Same response. Minimal, distroless-based image underneath -- and a smaller footprint:"
@@ -80,12 +84,15 @@ banner "Add Chainguard Libraries"
 # ---------------------------------------------------------------------------
 say "One more line: point pip at the Chainguard Libraries index instead of PyPI:"
 pe "git --no-pager diff --no-index --color=always docker/Dockerfile.containers docker/Dockerfile.libraries"
+say "No code changes, no requirements.txt changes -- just where pip resolves packages from:"
 pe "docker build -f docker/Dockerfile.libraries -t pymigrate:libraries app"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:libraries"
 pei "wait_for_http http://localhost:8000"
+say "One more time, same check:"
 pe "curl -s http://localhost:8000/"
 echo
+say "Still the exact same app. What changed is where the bits came from, not what they do."
 pei "docker rm -f pymigrate"
 
 # ---------------------------------------------------------------------------
@@ -93,8 +100,10 @@ banner "Production topology: Flask behind nginx"
 # ---------------------------------------------------------------------------
 say "Wire the fully-migrated build up behind nginx with Compose:"
 pe "cat compose.yml"
+say "flask-app builds from Dockerfile.libraries -- the stage we just landed on. Bringing it up:"
 pe "docker compose up -d --build"
 pei "wait_for_http http://localhost:80"
+say "Same app again, now reached through nginx on port 80 instead of talking to it directly:"
 pe "curl -s http://localhost:80/"
 echo
 pei "docker compose down"
