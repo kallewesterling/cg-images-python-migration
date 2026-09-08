@@ -1,7 +1,10 @@
 services:
   flask-app:
     build:
-      context: flask-app
+      context: app
+      dockerfile: ../docker/Dockerfile.libraries
+      secrets:
+        - netrc
     restart: always
     ports:
       - 8000:8000
@@ -13,7 +16,7 @@ services:
     restart: always
     ports:
       - 80:80
-    depends_on: 
+    depends_on:
       - flask-app
     networks:
       - frontnet
@@ -21,3 +24,7 @@ services:
 networks:
   backnet:
   frontnet:
+
+secrets:
+  netrc:
+    file: ./.netrc
