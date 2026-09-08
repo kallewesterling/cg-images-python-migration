@@ -27,6 +27,12 @@ for arg in "$@"; do
 done
 set -- "${ARGS[@]}"
 
+if [ ! -f "$HERE/.netrc" ]; then
+  echo "Missing .netrc -- the Chainguard Libraries build stage needs it as a build secret." >&2
+  echo "Run ./setup.sh first." >&2
+  exit 1
+fi
+
 . "$HERE/lib/base.sh"
 
 TYPE_SPEED=60
@@ -73,7 +79,7 @@ pei "wait_for_http http://localhost:8000"
 pe "curl -s http://localhost:8000/"
 echo
 p  "# Same response. Minimal, distroless-based image underneath -- and a smaller footprint:"
-pe "docker images --filter reference=pymigrate:v0 --filter reference=pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}'"
+pe "docker images pymigrate --format 'table {{.Tag}}\t{{.Size}}' | grep -E '^(TAG|v0|containers)\b'"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
