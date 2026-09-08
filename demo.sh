@@ -71,7 +71,7 @@ pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:containers"
 pei "wait_for_http http://localhost:8000"
 pe "curl -s http://localhost:8000/"
 p  "# Same response. Minimal, distroless-based image underneath -- and a smaller footprint:"
-pe "docker images pymigrate --format 'table {{.Tag}}\t{{.Size}}'"
+pe "docker images --filter reference=pymigrate:v0 --filter reference=pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}'"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
