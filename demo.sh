@@ -85,7 +85,8 @@ say "Swap the container out from under it -- same URL, same request:"
 pe "curl -s http://localhost:8000/"
 echo
 say "We can see that it's the same response -- minimal, distroless-based image underneath.\n\nLet's compare the footprint:"
-pe "docker images pymigrate --format 'table {{.Tag}}\t{{.Size}}' | grep -E '^(TAG|v0|containers)\b'"
+pe "docker images pymigrate:v0 --format 'table {{.Tag}}\t{{.Size}}'"
+pe "docker images pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
