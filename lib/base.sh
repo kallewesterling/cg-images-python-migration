@@ -18,8 +18,14 @@ function banner() {
 }
 
 function wait_for_http() {
+  # Checks for a non-empty body, not just a successful connection. Reusing a
+  # host port right after `docker rm -f` on the previous container can hit a
+  # window where the port accepts a connection but returns nothing while
+  # Docker's proxy finishes rebinding -- curl -o /dev/null treats that as
+  # success (no error, just an empty response), so a plain connectivity
+  # check reports "up" before the app is actually reachable.
   local url="$1" tries=0 max_tries=300
-  until curl -s -o /dev/null "$url" 2>/dev/null || [ "$tries" -ge "$max_tries" ]; do
+  until [ -n "$(curl -s "$url" 2>/dev/null)" ] || [ "$tries" -ge "$max_tries" ]; do
     sleep 0.1
     tries=$((tries + 1))
   done

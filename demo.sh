@@ -79,7 +79,8 @@ pei "wait_for_http http://localhost:8000"
 pe "curl -s http://localhost:8000/"
 echo
 p  "# Same response. Minimal, distroless-based image underneath -- and a smaller footprint:"
-pe "docker images pymigrate --format 'table {{.Tag}}\t{{.Size}}' | grep -E '^(TAG|v0|containers)\b'"
+pe "docker images pymigrate:v0 --format 'table {{.Tag}}\t{{.Size}}'"
+pe "docker images pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
