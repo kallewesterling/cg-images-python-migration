@@ -1,24 +1,32 @@
-# Migrating a Flask Application to Chainguard
+# Migrating a Flask Application to Chainguard -- demo
 
-This repository shows a migration to Chainguard Containers + Libraries in stages.
+A scripted, live-presentable version of this repo's migration story: one Flask app,
+one `requirements.txt`, walked through three base images -- plain Python, Chainguard
+Containers, Chainguard Containers + Chainguard Libraries -- then wired up behind
+nginx with Compose. Scripted with [demo-magic](https://github.com/paxtonhare/demo-magic).
 
-We start with a simple containerized Flask application based on a default Python image, migrate it to Chainguard Containers, then switch to pull additional dependencies from Chainguard Libraries.
+- BEFORE the talk: run `./setup.sh` (builds all three stage images ahead of time)
+- ON stage: run `./demo.sh` (press ENTER to advance; `-d` disables the typing effect;
+  `--skip-comments` drops the narration lines and runs only the actual commands)
+- AFTER: run `./teardown.sh`
 
-To clone and fetch/pull all branches:
+Every command shown is the real command being run -- no hidden wrappers.
 
-```bash
-git clone git@github.com:chainguard-dev/cg-images-python-migration.git
-cd cg-images-python-migration
-git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
-git fetch --all
-git pull --all
+Requires: `docker` (with `buildx` and `compose`), `curl`, `pv` (for the typing effect).
+
+## Layout
+
 ```
-
-The below branches show different stages of project development:
-
-- [Pre-migration Flask app](https://github.com/chainguard-dev/cg-images-python-migration/tree/v0)
-- [Flask application and Dockerfile only](https://github.com/chainguard-dev/cg-images-python-migration/tree/python-only)
-- [Docker Compose with Flask application and nginx](https://github.com/chainguard-dev/cg-images-python-migration/tree/compose-flask-nginx)
+app/
+  app.py             one Flask app, shared by every stage
+  requirements.txt   one requirements.txt, shared by every stage
+docker/
+  Dockerfile.v0          plain python, straight from PyPI
+  Dockerfile.containers  Chainguard Containers
+  Dockerfile.libraries   Chainguard Containers + Chainguard Libraries
+nginx/                nginx in front of the fully-migrated build
+compose.yml           Flask (Dockerfile.libraries) + nginx topology
+```
 
 ## Resources
 
