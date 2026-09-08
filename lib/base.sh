@@ -18,11 +18,14 @@ function banner() {
 }
 
 function wait_for_http() {
-  local url="$1" tries=0
-  until curl -s -o /dev/null "$url" 2>/dev/null || [ "$tries" -ge 100 ]; do
+  local url="$1" tries=0 max_tries=300
+  until curl -s -o /dev/null "$url" 2>/dev/null || [ "$tries" -ge "$max_tries" ]; do
     sleep 0.1
     tries=$((tries + 1))
   done
+  if [ "$tries" -ge "$max_tries" ]; then
+    echo "!! $url never came up after $((max_tries / 10))s -- the next command will likely show nothing." >&2
+  fi
 }
 
 # Print narration immediately -- no ENTER-wait, no typing effect. Use this
