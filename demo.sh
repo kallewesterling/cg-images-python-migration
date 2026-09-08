@@ -58,7 +58,8 @@ pe "docker build -f docker/Dockerfile.v0 -t pymigrate:v0 app"
 pei "docker rm -f pymigrate >/dev/null 2>&1"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:v0"
 pei "wait_for_http http://localhost:8000"
-pe "curl -s -w '\n' http://localhost:8000/"
+pe "curl -s http://localhost:8000/"
+echo
 
 # ---------------------------------------------------------------------------
 banner "Migrate to Chainguard Containers"
@@ -69,7 +70,8 @@ pe "docker build -f docker/Dockerfile.containers -t pymigrate:containers app"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:containers"
 pei "wait_for_http http://localhost:8000"
-pe "curl -s -w '\n' http://localhost:8000/"
+pe "curl -s http://localhost:8000/"
+echo
 p  "# Same response. Minimal, distroless-based image underneath -- and a smaller footprint:"
 pe "docker images --filter reference=pymigrate:v0 --filter reference=pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}'"
 
@@ -82,7 +84,8 @@ pe "docker build -f docker/Dockerfile.libraries -t pymigrate:libraries app"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:libraries"
 pei "wait_for_http http://localhost:8000"
-pe "curl -s -w '\n' http://localhost:8000/"
+pe "curl -s http://localhost:8000/"
+echo
 pei "docker rm -f pymigrate"
 
 # ---------------------------------------------------------------------------
@@ -92,7 +95,8 @@ say "Wire the fully-migrated build up behind nginx with Compose:"
 pe "cat compose.yml"
 pe "docker compose up -d --build"
 pei "wait_for_http http://localhost:80"
-pe "curl -s -w '\n' http://localhost:80/"
+pe "curl -s http://localhost:80/"
+echo
 pei "docker compose down"
 
 banner "Demo complete"
