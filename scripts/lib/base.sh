@@ -87,3 +87,30 @@ function say() {
 if [ -n "${TYPE_SPEED+set}" ]; then
   TYPE_SPEED=60
 fi
+
+# Type wrapped commands faster than short ones.
+#
+# demo-magic types everything at one rate. That rate is tuned for a short command
+# the audience reads word by word, but a wrapped `docker build` is mostly flags and
+# paths they skim -- so the same rate spends several seconds of stage time on lines
+# nobody is reading closely. Anything containing a newline types at this multiple
+# of the normal speed.
+MULTILINE_TYPE_FACTOR=${MULTILINE_TYPE_FACTOR:-175}   # percent; 175 = 1.75x
+
+# Rename demo-magic's pe rather than editing the vendored file, then shadow it.
+# demo-magic's own pei is defined as `NO_WAIT=true pe "$@"` and resolves pe at
+# call time, so it picks this up too.
+eval "_demo_magic_pe() $(declare -f pe | tail -n +2)"
+
+function pe() {
+  # No typing effect at all (-d), or a single-line command: nothing to speed up.
+  if [ -z "${TYPE_SPEED+set}" ] || [[ "$1" != *$'\n'* ]]; then
+    _demo_magic_pe "$@"
+    return
+  fi
+
+  local _saved_speed=$TYPE_SPEED
+  TYPE_SPEED=$(( TYPE_SPEED * MULTILINE_TYPE_FACTOR / 100 ))
+  _demo_magic_pe "$@"
+  TYPE_SPEED=$_saved_speed
+}

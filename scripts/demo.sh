@@ -86,17 +86,18 @@ say "And it's up. This is the baseline every later stage gets compared against:"
 pe "curl -s http://localhost:8000/"
 echo
 say "It works. But let's ask what we just shipped -- how many known vulnerabilities are\nin that image:"
-pe "grype sbom:sboms/baseline.json -q -o json \\
+pe "grype sbom:sboms/baseline.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
-  | sort | uniq -c | sort -rn"
+  | uniq -c"
 
 # ---------------------------------------------------------------------------
 banner "Migrate to Chainguard Containers"
 # ---------------------------------------------------------------------------
 say "Same app, same requirements.txt -- only the base image and build shape change:"
 pe "git --no-pager diff --no-index --color=always \\
-docker/Dockerfile.baseline \\
-docker/Dockerfile.containers"
+  docker/Dockerfile.baseline \\
+  docker/Dockerfile.containers \\
+  | cat -n"
 say "We can see that it's a multi-stage build now: dependencies install in a -dev image, then\nonly the venv carries over into the minimal runtime image.\n\nLet's rebuild:"
 pe "docker build \\
   -f docker/Dockerfile.containers \\
@@ -115,17 +116,18 @@ pe "docker images pymigrate:baseline \\
 pe "docker images pymigrate:containers \\
   --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
 say "And the same vulnerability scan, against the same app on the new base image:"
-pe "grype sbom:sboms/containers.json -q -o json \\
+pe "grype sbom:sboms/containers.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
-  | sort | uniq -c | sort -rn"
+  | uniq -c"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
 # ---------------------------------------------------------------------------
 say "One more line: point pip at the Chainguard Libraries index instead of PyPI:"
 pe "git --no-pager diff --no-index --color=always \\
-docker/Dockerfile.containers \\
-docker/Dockerfile.libraries"
+  docker/Dockerfile.containers \\
+  docker/Dockerfile.libraries \\
+  | cat -n"
 say "We can see that there are no code changes, no requirements.txt changes -- just where\npip resolves packages from.\n\nLet's rebuild:"
 pe "docker build \\
   -f docker/Dockerfile.libraries \\
