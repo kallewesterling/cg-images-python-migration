@@ -88,7 +88,8 @@ echo
 say "It works. But let's ask what we just shipped -- how many known vulnerabilities are\nin that image:"
 pe "grype sbom:sboms/baseline.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
-  | uniq -c"
+  | uniq -c \\
+  | awk '{print; t+=\$1} END {print \"TOTAL: \" t}'"
 
 # ---------------------------------------------------------------------------
 banner "Migrate to Chainguard Containers"
@@ -118,7 +119,8 @@ pe "docker images pymigrate:containers \\
 say "And the same vulnerability scan, against the same app on the new base image:"
 pe "grype sbom:sboms/containers.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
-  | uniq -c"
+  | uniq -c \\
+  | awk '{print; t+=\$1} END {print \"TOTAL: \" t}'"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
