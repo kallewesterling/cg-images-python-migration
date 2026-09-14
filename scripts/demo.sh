@@ -52,7 +52,9 @@ A default Python image, a Dockerfile, and a handful of pip installs -- that's ho
 Flask apps ship. This demo migrates one such app to Chainguard Containers, then to
 Chainguard Libraries, in stages -- same app, same requirements.txt, the whole way through.
 "
-wait
+# No wait() here on purpose. banner() already waits before it draws, so the title
+# screen stays up until the presenter advances -- adding a wait of our own just
+# buys a dead keypress that prints nothing and reads as a stuck demo on stage.
 
 # ---------------------------------------------------------------------------
 banner "The app: a simple Flask microservice"
