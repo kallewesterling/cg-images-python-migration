@@ -6,8 +6,8 @@
 # Chainguard Libraries -- then wires the fully-migrated build up behind nginx with Compose.
 #
 # ON stage: run ./scripts/demo.sh   (press ENTER to advance; -d disables typing)
-#           --skip-comments drops the narration lines, showing/running only the
-#           actual commands
+#           --skip-comments drops the narration lines and the title screen,
+#           showing/running only the actual commands
 # BEFORE:   run ./scripts/setup.sh   (builds all three images ahead of time)
 # AFTER:    run ./scripts/teardown.sh
 #
@@ -45,13 +45,18 @@ fi
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear
-echo -e "
+# The title screen is narration like any other, so --skip-comments drops it too:
+# that flag exists for rehearsal and timing runs, where a splash nobody reads is
+# just noise between you and the first command.
+if [ "$SKIP_COMMENTS" = false ]; then
+  echo -e "
 Migrating a Flask Application to Chainguard
 
 A default Python image, a Dockerfile, and a handful of pip installs -- that's how most
 Flask apps ship. This demo migrates one such app to Chainguard Containers, then to
 Chainguard Libraries, in stages -- same app, same requirements.txt, the whole way through.
 "
+fi
 # No wait() here on purpose. banner() already waits before it draws, so the title
 # screen stays up until the presenter advances -- adding a wait of our own just
 # buys a dead keypress that prints nothing and reads as a stuck demo on stage.

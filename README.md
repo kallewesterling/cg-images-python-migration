@@ -72,7 +72,7 @@ Useful `./scripts/demo.sh` flags:
 | Flag | Effect |
 |---|---|
 | `-d` | Turn off the simulated typing. Also removes the dependency on `pv`. |
-| `--skip-comments` | Drop the narration and run only the commands. |
+| `--skip-comments` | Drop the narration — title screen included — and run only the commands. |
 | `-w5` | Auto-advance after 5 seconds instead of waiting for ENTER. |
 | `-n` | Never wait. Runs the entire demo start to finish without pausing. |
 
