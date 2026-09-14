@@ -35,13 +35,20 @@ function wait_for_http() {
 }
 
 # Print narration immediately -- no ENTER-wait, no typing effect. Use this
-# for the intro line(s) right after a banner, where banner() already
-# consumed a wait; making the presenter wait again just to reveal plain
-# text (not a command) is redundant.
+# for narration wedged between commands, where waiting for ENTER just to
+# reveal plain text (not a command) is redundant. Always leads with a blank
+# line so it reads as its own beat instead of running into the previous
+# command's output.
+#
+# When a line both comments on the previous command's output ("We can see
+# that ...") and leads into the next one ("Let's rebuild:"), put \n\n between
+# the two clauses -- the blank line marks where the reflection ends and the
+# lead-in to the next command begins, inside the same beat.
 function say() {
   if [ "${SKIP_COMMENTS:-false}" = true ]; then
     return
   fi
+  echo
   echo -e "${DEMO_COMMENT_COLOR}${1}${COLOR_RESET}"
 }
 
