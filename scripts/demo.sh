@@ -17,7 +17,7 @@
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Run from the repo root, not from scripts/. Every command this demo displays is
-# written relative to the root ("cat docker/Dockerfile.v0", "docker build ... app"),
+# written relative to the root ("cat docker/Dockerfile.baseline", "docker build ... app"),
 # so the audience sees paths that match the repo layout rather than ../ hops.
 ROOT="$(cd "$HERE/.." && pwd)"
 cd "$ROOT"
@@ -65,12 +65,15 @@ pe "cat app/app.py"
 banner "Stage 1: plain Python base image"
 # ---------------------------------------------------------------------------
 say "Start simple: build straight off the public 'python' image, straight from Docker Hub:"
-pe "cat docker/Dockerfile.v0"
+pe "cat docker/Dockerfile.baseline"
 say "We can see that it's nothing unusual -- pip install, copy the app in, run gunicorn.\n\nLet's build it:"
-pe "docker build -f docker/Dockerfile.v0 -t pymigrate:v0 app"
+pe "docker build \\
+-f docker/Dockerfile.baseline \\
+-t pymigrate:baseline \\
+app"
 say "Let's run it:"
 pei "docker rm -f pymigrate >/dev/null 2>&1"
-pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:v0"
+pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:baseline"
 pei "wait_for_http http://localhost:8000"
 say "And it's up. This is the baseline every later stage gets compared against:"
 pe "curl -s http://localhost:8000/"
@@ -80,9 +83,14 @@ echo
 banner "Migrate to Chainguard Containers"
 # ---------------------------------------------------------------------------
 say "Same app, same requirements.txt -- only the base image and build shape change:"
-pe "git --no-pager diff --no-index --color=always docker/Dockerfile.v0 docker/Dockerfile.containers"
+pe "git --no-pager diff --no-index --color=always \\
+docker/Dockerfile.baseline \\
+docker/Dockerfile.containers"
 say "We can see that it's a multi-stage build now: dependencies install in a -dev image, then\nonly the venv carries over into the minimal runtime image.\n\nLet's rebuild:"
-pe "docker build -f docker/Dockerfile.containers -t pymigrate:containers app"
+pe "docker build \\
+-f docker/Dockerfile.containers \\
+-t pymigrate:containers \\
+app"
 say "Let's run it:"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:containers"
@@ -91,16 +99,23 @@ say "Swap the container out from under it -- same URL, same request:"
 pe "curl -s http://localhost:8000/"
 echo
 say "We can see that it's the same response -- minimal, distroless-based image underneath.\n\nLet's compare the footprint:"
-pe "docker images pymigrate:v0 --format 'table {{.Tag}}\t{{.Size}}'"
-pe "docker images pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
+pe "docker images pymigrate:baseline \\
+--format 'table {{.Tag}}\t{{.Size}}'"
+pe "docker images pymigrate:containers \\
+--format 'table {{.Tag}}\t{{.Size}}' | tail -1"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
 # ---------------------------------------------------------------------------
 say "One more line: point pip at the Chainguard Libraries index instead of PyPI:"
-pe "git --no-pager diff --no-index --color=always docker/Dockerfile.containers docker/Dockerfile.libraries"
+pe "git --no-pager diff --no-index --color=always \\
+docker/Dockerfile.containers \\
+docker/Dockerfile.libraries"
 say "We can see that there are no code changes, no requirements.txt changes -- just where\npip resolves packages from.\n\nLet's rebuild:"
-pe "docker build -f docker/Dockerfile.libraries -t pymigrate:libraries app"
+pe "docker build \\
+-f docker/Dockerfile.libraries \\
+-t pymigrate:libraries \\
+app"
 say "Let's run it:"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:libraries"

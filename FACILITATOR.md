@@ -119,6 +119,14 @@ chmod 0600 .netrc
 
 Then re-run the build. Keep that snippet somewhere you can paste it from.
 
+**A warm build cache hides an expired token.** This is the subtle one. The
+`pip install` layer is cached like any other, so the Libraries build will happily
+succeed off an expired token and never contact `libraries.cgr.dev` at all — a clean
+rehearsal does *not* prove your credentials are live. Anything that invalidates that
+layer mid-demo (an edited `requirements.txt`, a pruned cache, a different machine) is
+where it surfaces. Re-running `setup.sh` is what actually proves the token, because it
+mints a fresh one.
+
 **`port is already allocated`.** Something from an earlier run survived:
 `docker rm -f pymigrate` and `docker compose down`, then retry.
 

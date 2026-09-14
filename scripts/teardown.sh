@@ -15,7 +15,7 @@ docker compose down >/dev/null 2>&1 || true
 docker rm -f pymigrate >/dev/null 2>&1 || true
 
 echo "==> Removing local images"
-docker image rm pymigrate:v0 pymigrate:containers pymigrate:libraries >/dev/null 2>&1 || true
+docker image rm pymigrate:baseline pymigrate:containers pymigrate:libraries >/dev/null 2>&1 || true
 
 echo "==> Removing credentials file"
 rm -f .netrc

@@ -30,14 +30,24 @@ CGR_TOKEN=$(echo "$CREDS_OUTPUT" | jq -r '.token')
 printf 'machine libraries.cgr.dev\nlogin %s\npassword %s\n' "$CGR_USER" "$CGR_TOKEN" > .netrc
 chmod 0600 .netrc
 
-echo "==> Building v0 (plain python, straight from PyPI)"
-docker build -f docker/Dockerfile.v0 -t pymigrate:v0 app
+echo "==> Building baseline (plain python, straight from PyPI)"
+docker build \
+  -f docker/Dockerfile.baseline \
+  -t pymigrate:baseline \
+  app
 
 echo "==> Building containers (Chainguard Containers)"
-docker build -f docker/Dockerfile.containers -t pymigrate:containers app
+docker build \
+  -f docker/Dockerfile.containers \
+  -t pymigrate:containers \
+  app
 
 echo "==> Building libraries (Chainguard Containers + Chainguard Libraries)"
-docker build --secret id=netrc,src=.netrc -f docker/Dockerfile.libraries -t pymigrate:libraries app
+docker build \
+  --secret id=netrc,src=.netrc \
+  -f docker/Dockerfile.libraries \
+  -t pymigrate:libraries \
+  app
 
 echo "==> Pre-building the nginx + Compose topology"
 docker compose build

@@ -17,7 +17,7 @@ You can work through this yourself (below), or
 
 | Stage | Dockerfile | What changes |
 |---|---|---|
-| 1 | [`docker/Dockerfile.v0`](docker/Dockerfile.v0) | The starting point: `FROM python`, `pip install` from PyPI, single stage. |
+| 1 | [`docker/Dockerfile.baseline`](docker/Dockerfile.baseline) | The starting point: `FROM python`, `pip install` from PyPI, single stage. |
 | 2 | [`docker/Dockerfile.containers`](docker/Dockerfile.containers) | `FROM cgr.dev/chainguard/python`. Becomes multi-stage: dependencies install into a venv in a `-dev` image, only the venv carries into a minimal runtime image with no shell or package manager. |
 | 3 | [`docker/Dockerfile.libraries`](docker/Dockerfile.libraries) | Same image, one changed `pip install`: resolve packages from Chainguard Libraries instead of PyPI. |
 | 4 | [`compose.yml`](compose.yml) | The migrated build behind nginx (also a Chainguard image), as a production-shaped topology. |
@@ -26,7 +26,7 @@ The diff between consecutive Dockerfiles *is* the migration. Reading them side b
 the fastest way to see how little has to change:
 
 ```bash
-git diff --no-index docker/Dockerfile.v0 docker/Dockerfile.containers
+git diff --no-index docker/Dockerfile.baseline docker/Dockerfile.containers
 git diff --no-index docker/Dockerfile.containers docker/Dockerfile.libraries
 ```
 
@@ -87,8 +87,8 @@ hand.
 **Stage 1 — the starting point.** No credentials needed.
 
 ```bash
-docker build -f docker/Dockerfile.v0 -t pymigrate:v0 app
-docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:v0
+docker build -f docker/Dockerfile.baseline -t pymigrate:baseline app
+docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:baseline
 curl -s http://localhost:8000/
 docker rm -f pymigrate
 ```
@@ -105,7 +105,7 @@ docker rm -f pymigrate
 Same response from a much smaller image with far less in it. Compare them:
 
 ```bash
-docker images pymigrate:v0     --format 'table {{.Tag}}\t{{.Size}}'
+docker images pymigrate:baseline   --format 'table {{.Tag}}\t{{.Size}}'
 docker images pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}'
 ```
 
@@ -157,7 +157,7 @@ app/
   app.py                   one Flask app, shared by every stage
   requirements.txt         one requirements.txt, shared by every stage
 docker/
-  Dockerfile.v0            stage 1: plain python, from PyPI
+  Dockerfile.baseline      stage 1: plain python, from PyPI
   Dockerfile.containers    stage 2: Chainguard Containers, multi-stage
   Dockerfile.libraries     stage 3: + Chainguard Libraries
 nginx/                     nginx (Chainguard image) fronting the migrated build
