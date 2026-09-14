@@ -89,7 +89,7 @@ say "It works. But let's ask what we just shipped -- how many known vulnerabilit
 pe "grype sbom:sboms/baseline.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
   | uniq -c \\
-  | awk '{print; t+=\$1} END {print \"TOTAL: \" t}'"
+  | awk '{print; t+=\$1} END {print \"TOTAL: \" t+0}'"
 
 # ---------------------------------------------------------------------------
 banner "Migrate to Chainguard Containers"
@@ -120,7 +120,7 @@ say "And the same vulnerability scan, against the same app on the new base image
 pe "grype sbom:sboms/containers.json -q --sort-by severity -o json \\
   | jq -r '.matches[].vulnerability.severity' \\
   | uniq -c \\
-  | awk '{print; t+=\$1} END {print \"TOTAL: \" t}'"
+  | awk '{print; t+=\$1} END {print \"TOTAL: \" t+0}'"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
