@@ -25,10 +25,35 @@ function wait_for_http() {
   # success (no error, just an empty response), so a plain connectivity
   # check reports "up" before the app is actually reachable.
   local url="$1" tries=0 max_tries=300
-  until [ -n "$(curl -s "$url" 2>/dev/null)" ] || [ "$tries" -ge "$max_tries" ]; do
+
+  # Stay interruptible. demo-magic's run_cmd traps SIGINT with a no-op handler,
+  # so without a trap of our own a Ctrl-C here is caught and discarded: it kills
+  # at most the current `sleep` and the loop carries on polling for the full 30s.
+  # On stage that reads as a dead demo you cannot escape. Take the signal, stop
+  # waiting, and hand the presenter back control.
+  local interrupted=false prev_int_trap
+  prev_int_trap="$(trap -p INT)"
+  trap 'interrupted=true' INT
+
+  until [ -n "$(curl -s "$url" 2>/dev/null)" ] \
+    || [ "$tries" -ge "$max_tries" ] \
+    || [ "$interrupted" = true ]; do
     sleep 0.1
     tries=$((tries + 1))
   done
+
+  # Put back whatever handler was in place (run_cmd's, normally) so the rest of
+  # the demo keeps the interrupt behaviour it expects.
+  if [ -n "$prev_int_trap" ]; then
+    eval "$prev_int_trap"
+  else
+    trap - INT
+  fi
+
+  if [ "$interrupted" = true ]; then
+    echo "^C -- stopped waiting for $url. Carrying on; the next command may show nothing." >&2
+    return 130
+  fi
   if [ "$tries" -ge "$max_tries" ]; then
     echo "!! $url never came up after $((max_tries / 10))s -- the next command will likely show nothing." >&2
   fi
