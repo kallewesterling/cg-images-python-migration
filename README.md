@@ -55,18 +55,18 @@ command before it runs. It needs Libraries access, because it builds every stage
 including stage 3.
 
 ```bash
-./setup.sh      # authenticates, writes .netrc, pre-builds all stage images
-./demo.sh       # press ENTER to advance through the migration
-./teardown.sh   # removes containers, images, and the credentials file
+./scripts/setup.sh      # authenticates, writes .netrc, pre-builds all stage images
+./scripts/demo.sh       # press ENTER to advance through the migration
+./scripts/teardown.sh   # removes containers, images, and the credentials file
 ```
 
-`./setup.sh` prompts for your Chainguard organization, or takes it from the environment:
+`./scripts/setup.sh` prompts for your Chainguard organization, or takes it from the environment:
 
 ```bash
-ORG_NAME=my-org.example ./setup.sh
+ORG_NAME=my-org.example ./scripts/setup.sh
 ```
 
-Useful `./demo.sh` flags:
+Useful `./scripts/demo.sh` flags:
 
 | Flag | Effect |
 |---|---|
@@ -125,7 +125,7 @@ curl -s http://localhost:8000/
 docker rm -f pymigrate
 ```
 
-(`./setup.sh` does exactly this — the expanded version is here so you can see what it does.)
+(`./scripts/setup.sh` does exactly this — the expanded version is here so you can see what it does.)
 
 **Stage 4 — behind nginx.**
 
@@ -145,7 +145,7 @@ a **build-time secret, never a baked-in layer**:
   committed**.
 - The build mounts it with `RUN --mount=type=secret,id=netrc`, so it exists only for the
   duration of that `RUN` and never lands in the image or its history.
-- `./teardown.sh` deletes it.
+- `./scripts/teardown.sh` deletes it.
 
 If you copy this pattern, keep that shape: a secret mount, not a `COPY` and not a
 build `ARG`.
@@ -162,11 +162,16 @@ docker/
   Dockerfile.libraries     stage 3: + Chainguard Libraries
 nginx/                     nginx (Chainguard image) fronting the migrated build
 compose.yml                stage 4: flask-app + nginx topology
-demo.sh                    the scripted walkthrough
-setup.sh / teardown.sh     build-up and clean-up
-lib/                       demo-magic plus local helpers
 FACILITATOR.md             notes for presenting this live
+scripts/                   the demo harness, not part of the migration itself
+  demo.sh                  the scripted walkthrough
+  setup.sh                 build-up: credentials + pre-built images
+  teardown.sh              clean-up
+  lib/                     demo-magic plus local helpers
 ```
+
+Everything above `scripts/` is the migration. `scripts/` is the machinery that presents
+it — you never need to read it to follow the story.
 
 ## Presenting this
 

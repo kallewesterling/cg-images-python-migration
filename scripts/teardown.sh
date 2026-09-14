@@ -5,7 +5,10 @@
 # remote state to clean up -- just containers and images.
 #
 set -uo pipefail
-cd "$(dirname "$0")"
+
+# Clean up from the repo root: compose.yml and the .netrc removed below both
+# live there, not in scripts/.
+cd "$(dirname "$0")/.."
 
 echo "==> Stopping demo containers"
 docker compose down >/dev/null 2>&1 || true

@@ -11,13 +11,17 @@
 # Run this BEFORE the demo. Re-runnable.
 #
 # Usage:
-#   ORG_NAME=<your-cg-org> ./setup.sh
-#   ./setup.sh                    # prompts for ORG_NAME
+#   ORG_NAME=<your-cg-org> ./scripts/setup.sh
+#   ./scripts/setup.sh            # prompts for ORG_NAME
 #
 set -euo pipefail
-cd "$(dirname "$0")"
+HERE="$(cd "$(dirname "$0")" && pwd)"
 
-. "./lib/org.sh"
+# Build from the repo root: the build contexts and -f paths below, and the
+# .netrc that compose.yml mounts as a secret, are all root-relative.
+cd "$HERE/.."
+
+. "$HERE/lib/org.sh"
 
 echo "==> Writing .netrc for libraries.cgr.dev (build-time secret only, never in the image)"
 CREDS_OUTPUT=$(chainctl auth pull-token --repository=python --parent="$ORG_NAME" --ttl=8h -o json)
@@ -39,4 +43,4 @@ echo "==> Pre-building the nginx + Compose topology"
 docker compose build
 
 echo
-echo "==> Done. ./demo.sh is ready to run. ./teardown.sh to clean up afterward."
+echo "==> Done. ./scripts/demo.sh is ready to run. ./scripts/teardown.sh to clean up afterward."

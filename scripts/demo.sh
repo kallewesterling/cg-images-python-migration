@@ -5,17 +5,22 @@
 # through three base images -- plain Python, Chainguard Containers, Chainguard Containers +
 # Chainguard Libraries -- then wires the fully-migrated build up behind nginx with Compose.
 #
-# ON stage: run ./demo.sh    (press ENTER to advance; -d disables typing)
-#           --skip-comments drops the "# ..." narration lines, showing/running
-#           only the actual commands
-# BEFORE:   run ./setup.sh   (builds all three images ahead of time)
-# AFTER:    run ./teardown.sh
+# ON stage: run ./scripts/demo.sh   (press ENTER to advance; -d disables typing)
+#           --skip-comments drops the narration lines, showing/running only the
+#           actual commands
+# BEFORE:   run ./scripts/setup.sh   (builds all three images ahead of time)
+# AFTER:    run ./scripts/teardown.sh
 #
 # Every command shown is the real command being run -- no hidden wrappers.
 # Requires: docker (buildx), docker compose, curl.
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$HERE"
+
+# Run from the repo root, not from scripts/. Every command this demo displays is
+# written relative to the root ("cat docker/Dockerfile.v0", "docker build ... app"),
+# so the audience sees paths that match the repo layout rather than ../ hops.
+ROOT="$(cd "$HERE/.." && pwd)"
+cd "$ROOT"
 
 SKIP_COMMENTS=false
 ARGS=()
@@ -27,15 +32,15 @@ for arg in "$@"; do
 done
 set -- "${ARGS[@]}"
 
-if [ ! -f "$HERE/.netrc" ]; then
+if [ ! -f "$ROOT/.netrc" ]; then
   echo "Missing .netrc -- the Chainguard Libraries build stage needs it as a build secret." >&2
-  echo "Run ./setup.sh first." >&2
+  echo "Run ./scripts/setup.sh first." >&2
   exit 1
 fi
 
 . "$HERE/lib/base.sh"
 
-# Typing speed is set in lib/base.sh, before demo-magic parses argv, so that -d
+# Typing speed is set in scripts/lib/base.sh, before demo-magic parses argv, so that -d
 # can switch it off. Don't re-assign it here.
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 

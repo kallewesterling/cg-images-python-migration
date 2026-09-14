@@ -4,7 +4,7 @@ Notes for presenting the Flask → Chainguard migration live. For what the demo 
 the [README](README.md); this file is about running it in front of people.
 
 The single most important thing on this page: **the credential token lives for 8 hours.**
-Run `./setup.sh` the same day you present, ideally within a couple of hours of going on.
+Run `./scripts/setup.sh` the same day you present, ideally within a couple of hours of going on.
 
 ## Pre-flight
 
@@ -12,14 +12,14 @@ Do all of this before the audience is in the room.
 
 - [ ] `chainctl auth login` — confirm you're authenticated, and know which organization has
       Chainguard Libraries for Python enabled.
-- [ ] **`./setup.sh`** (same day — 8-hour token). Mints the token, writes `.netrc`, and
+- [ ] **`./scripts/setup.sh`** (same day — 8-hour token). Mints the token, writes `.netrc`, and
       pre-builds all three stage images plus the Compose topology, so nothing builds cold
       on stage.
 - [ ] Ports **8000** and **80** free. `lsof -i :8000 -i :80` — a stray container from a
-      previous run is the usual culprit; `./teardown.sh` clears it (then re-run `setup.sh`).
+      previous run is the usual culprit; `./scripts/teardown.sh` clears it (then re-run `setup.sh`).
 - [ ] `pv` installed (`brew install pv`) if you want the typing effect. If not, present
       with `-d`.
-- [ ] Rehearse once end to end. `./demo.sh --skip-comments` gives you the floor on timing;
+- [ ] Rehearse once end to end. `./scripts/demo.sh --skip-comments` gives you the floor on timing;
       the real run is longer because you're talking.
 - [ ] Note the actual image sizes from your rehearsal. You'll quote them in stage 2, and
       they shift with upstream image versions — don't rely on a number from a previous talk.
@@ -132,7 +132,7 @@ finish. This is the reason for the pre-build step.
 ## Afterwards
 
 ```bash
-./teardown.sh
+./scripts/teardown.sh
 ```
 
 Stops the containers, removes the three `pymigrate` images, and **deletes `.netrc`**.
@@ -140,4 +140,4 @@ Everything is local — nothing was pushed to a registry — so there's no remot
 clean up.
 
 If you're presenting again later, remember teardown removed both the images and the
-credentials: run `./setup.sh` again, and mind the 8-hour window.
+credentials: run `./scripts/setup.sh` again, and mind the 8-hour window.
