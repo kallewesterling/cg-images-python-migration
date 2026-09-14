@@ -10,8 +10,7 @@ The point of the exercise: **the application never changes.** One `app.py`, one
 image and where dependencies are resolved from — and at every stage the app still
 returns the same response.
 
-You can work through this yourself (below), or
-[present it to an audience](FACILITATOR.md).
+You can work through this yourself — see below.
 
 ## The stages
 
@@ -164,7 +163,6 @@ docker/
   Dockerfile.libraries     stage 3: + Chainguard Libraries
 nginx/                     nginx (Chainguard image) fronting the migrated build
 compose.yml                stage 4: flask-app + nginx topology
-FACILITATOR.md             notes for presenting this live
 scripts/                   the demo harness, not part of the migration itself
   demo.sh                  the scripted walkthrough
   setup.sh                 build-up: credentials + pre-built images
@@ -174,12 +172,6 @@ scripts/                   the demo harness, not part of the migration itself
 
 Everything above `scripts/` is the migration. `scripts/` is the machinery that presents
 it — you never need to read it to follow the story.
-
-## Presenting this
-
-If you're running this in front of an audience, [FACILITATOR.md](FACILITATOR.md) has the
-pre-flight checklist, the beats of each stage, and what to do when a build misbehaves
-on stage.
 
 ## Resources
 
