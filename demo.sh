@@ -35,7 +35,8 @@ fi
 
 . "$HERE/lib/base.sh"
 
-TYPE_SPEED=60
+# Typing speed is set in lib/base.sh, before demo-magic parses argv, so that -d
+# can switch it off. Don't re-assign it here.
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W ${COLOR_RESET}"
 
 clear

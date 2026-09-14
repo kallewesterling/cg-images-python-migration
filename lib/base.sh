@@ -53,4 +53,12 @@ function say() {
 }
 
 . "${SCRIPT_DIR}/demo-magic.sh"
-TYPE_SPEED=60
+
+# demo-magic parses our argv as it is sourced above: it defaults TYPE_SPEED to
+# 20, and `-d` switches typing off by unsetting the variable entirely. So the
+# speed override has to come after the source (or demo-magic's own default wins)
+# AND has to be conditional (or it clobbers -d, leaving no way to stop typing --
+# which matters when pv is missing, since demo-magic aborts without it).
+if [ -n "${TYPE_SPEED+set}" ]; then
+  TYPE_SPEED=60
+fi
