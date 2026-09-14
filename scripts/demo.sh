@@ -75,9 +75,9 @@ say "Start simple: build straight off the public 'python' image, straight from D
 pe "cat docker/Dockerfile.baseline"
 say "We can see that it's nothing unusual -- pip install, copy the app in, run gunicorn.\n\nLet's build it:"
 pe "docker build \\
--f docker/Dockerfile.baseline \\
--t pymigrate:baseline \\
-app"
+  -f docker/Dockerfile.baseline \\
+  -t pymigrate:baseline \\
+  app"
 say "Let's run it:"
 pei "docker rm -f pymigrate >/dev/null 2>&1"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:baseline"
@@ -95,9 +95,9 @@ docker/Dockerfile.baseline \\
 docker/Dockerfile.containers"
 say "We can see that it's a multi-stage build now: dependencies install in a -dev image, then\nonly the venv carries over into the minimal runtime image.\n\nLet's rebuild:"
 pe "docker build \\
--f docker/Dockerfile.containers \\
--t pymigrate:containers \\
-app"
+  -f docker/Dockerfile.containers \\
+  -t pymigrate:containers \\
+  app"
 say "Let's run it:"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:containers"
@@ -107,9 +107,9 @@ pe "curl -s http://localhost:8000/"
 echo
 say "We can see that it's the same response -- minimal, distroless-based image underneath.\n\nLet's compare the footprint:"
 pe "docker images pymigrate:baseline \\
---format 'table {{.Tag}}\t{{.Size}}'"
+  --format 'table {{.Tag}}\t{{.Size}}'"
 pe "docker images pymigrate:containers \\
---format 'table {{.Tag}}\t{{.Size}}' | tail -1"
+  --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"
@@ -120,9 +120,9 @@ docker/Dockerfile.containers \\
 docker/Dockerfile.libraries"
 say "We can see that there are no code changes, no requirements.txt changes -- just where\npip resolves packages from.\n\nLet's rebuild:"
 pe "docker build \\
--f docker/Dockerfile.libraries \\
--t pymigrate:libraries \\
-app"
+  -f docker/Dockerfile.libraries \\
+  -t pymigrate:libraries \\
+  app"
 say "Let's run it:"
 pei "docker rm -f pymigrate"
 pei "docker run -d --rm -p 8000:8000 --name pymigrate pymigrate:libraries"
