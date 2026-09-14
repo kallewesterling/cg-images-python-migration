@@ -34,7 +34,9 @@ git diff --no-index docker/Dockerfile.containers docker/Dockerfile.libraries
 
 For **stages 1 and 2** — no credentials, no account:
 
-- `docker` with `buildx` and `compose`
+- `docker` 23 or newer, with `buildx` and `compose`. The Dockerfiles carry no
+  `# syntax=` directive, so they're parsed by Docker's built-in BuildKit frontend —
+  which has handled the `RUN --mount=type=secret` used in stage 3 since Docker 23.
 - `curl` and `git`
 
 For **stages 3 and 4** you additionally need access to Chainguard Libraries for Python,
