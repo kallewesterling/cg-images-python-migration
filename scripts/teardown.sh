@@ -17,6 +17,9 @@ docker rm -f pymigrate >/dev/null 2>&1 || true
 echo "==> Removing local images"
 docker image rm pymigrate:baseline pymigrate:containers pymigrate:libraries >/dev/null 2>&1 || true
 
+echo "==> Removing generated SBOMs"
+rm -rf sboms
+
 echo "==> Removing credentials file"
 rm -f .netrc
 

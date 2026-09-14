@@ -85,6 +85,10 @@ pei "wait_for_http http://localhost:8000"
 say "And it's up. This is the baseline every later stage gets compared against:"
 pe "curl -s http://localhost:8000/"
 echo
+say "It works. But let's ask what we just shipped -- how many known vulnerabilities are\nin that image:"
+pe "grype sbom:sboms/baseline.json -q -o json \\
+  | jq -r '.matches[].vulnerability.severity' \\
+  | sort | uniq -c | sort -rn"
 
 # ---------------------------------------------------------------------------
 banner "Migrate to Chainguard Containers"
@@ -110,6 +114,10 @@ pe "docker images pymigrate:baseline \\
   --format 'table {{.Tag}}\t{{.Size}}'"
 pe "docker images pymigrate:containers \\
   --format 'table {{.Tag}}\t{{.Size}}' | tail -1"
+say "And the same vulnerability scan, against the same app on the new base image:"
+pe "grype sbom:sboms/containers.json -q -o json \\
+  | jq -r '.matches[].vulnerability.severity' \\
+  | sort | uniq -c | sort -rn"
 
 # ---------------------------------------------------------------------------
 banner "Add Chainguard Libraries"

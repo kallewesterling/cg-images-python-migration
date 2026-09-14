@@ -46,6 +46,12 @@ which is a paid Chainguard feature tied to an organization:
   (`chainctl auth login`)
 - `jq`
 
+The scripted walkthrough also compares the vulnerability counts of the first two
+images, which needs:
+
+- [`grype`](https://github.com/anchore/grype) and [`syft`](https://github.com/anchore/syft)
+  (`brew install grype syft`)
+
 If you don't have Libraries access, stages 1 and 2 still stand on their own — they're
 the Chainguard Containers migration, which is the bigger structural change anyway.
 
@@ -56,9 +62,9 @@ command before it runs. It needs Libraries access, because it builds every stage
 including stage 3.
 
 ```bash
-./scripts/setup.sh      # authenticates, writes .netrc, pre-builds all stage images
+./scripts/setup.sh      # credentials, pre-built images, grype DB, SBOMs
 ./scripts/demo.sh       # press ENTER to advance through the migration
-./scripts/teardown.sh   # removes containers, images, and the credentials file
+./scripts/teardown.sh   # removes containers, images, SBOMs, and the credentials file
 ```
 
 `./scripts/setup.sh` prompts for your Chainguard organization, or takes it from the environment:
@@ -109,6 +115,17 @@ Same response from a much smaller image with far less in it. Compare them:
 docker images pymigrate:baseline   --format 'table {{.Tag}}\t{{.Size}}'
 docker images pymigrate:containers --format 'table {{.Tag}}\t{{.Size}}'
 ```
+
+And the difference that matters more — known vulnerabilities in each:
+
+```bash
+grype pymigrate:baseline   -q -o json | jq '.matches | length'
+grype pymigrate:containers -q -o json | jq '.matches | length'
+```
+
+Scanning the baseline image takes around a minute; it's a big image with a lot in it,
+which is rather the point. (`scripts/demo.sh` scans pre-built SBOMs instead, so the
+comparison is quick enough to do live.)
 
 **Stage 3 — Chainguard Libraries.** Needs Libraries access. The build authenticates to
 `libraries.cgr.dev` with a short-lived token, passed in as a BuildKit secret:
