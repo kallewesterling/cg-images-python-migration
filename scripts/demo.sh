@@ -131,12 +131,15 @@ banner "Production topology: Flask behind nginx"
 # ---------------------------------------------------------------------------
 say "Wire the fully-migrated build up behind nginx with Compose:"
 pe "cat compose.yml"
-say "We can see that flask-app builds from Dockerfile.libraries -- the stage we just landed on.\n\nLet's bring it up:"
+say "We can see that flask-app builds from Dockerfile.libraries -- the stage we just landed\non.\n\nAnd the proxy sitting in front of it is a Chainguard image too:"
+pe "cat nginx/Dockerfile"
+say "We can see that nginx got the same treatment the app did: one FROM line pointing at\ncgr.dev, then the config copied in. Nothing else had to change.\n\nLet's bring it up:"
 pe "docker compose up -d --build"
 pei "wait_for_http http://localhost:80"
 say "Same app again, now reached through nginx on port 80 instead of talking to it directly:"
 pe "curl -s http://localhost:80/"
 echo
+say "We can see that every container in this topology is a Chainguard image now -- the app\nand the proxy in front of it."
 pei "docker compose down"
 
 banner "Demo complete"

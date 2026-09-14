@@ -46,7 +46,7 @@ The rest of the mechanics:
 - **Plumbing runs automatically** — `docker rm -f`, `docker run -d`, and the readiness
   waits fire without pausing, so you're not pressing ENTER through housekeeping.
 
-About **39 ENTER presses** from start to finish.
+About **41 ENTER presses** from start to finish.
 
 Flags worth knowing on stage:
 
@@ -85,9 +85,16 @@ sentence, since "how do credentials get in there" is a question you'll otherwise
 Q&A.
 
 **5. Stage 4 — behind nginx.** `compose.yml` builds `flask-app` from
-`Dockerfile.libraries` — the stage just landed on — with nginx (also a Chainguard image) in
-front. Same app, now on port 80 through the proxy. This is the "and it works in a real
-topology" beat.
+`Dockerfile.libraries` — the stage just landed on. Then `nginx/Dockerfile` goes up, and
+it's two lines: `FROM cgr.dev/chainguard/nginx:latest` and the config copied in. Worth
+pausing on, because it widens the story — the migration wasn't a Python trick, it's the
+same one-line base image swap for the proxy. Then the same app on port 80 through
+nginx, and the closing point that every container in the topology is now a Chainguard
+image.
+
+If someone asks how the proxy compares to `docker.io/nginx`, you can pull it and
+diff the sizes — but do that in Q&A, not inline. It's a cold Docker Hub pull in the
+middle of your last beat.
 
 **6. Demo complete.** Land the through-line: the app was never touched. What changed was
 where the bits came from.
